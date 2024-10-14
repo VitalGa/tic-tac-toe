@@ -54,6 +54,7 @@
 
         const [currentStep, setCurrenstep] = React.useState(SYMBOL_O);
         const [winnerSequence, setWinnerSequence] = React.useState();
+        const [isDraw, setIsDraw] = React.useState(false); // Для отслеживания ничьей
 
         const getSymbolClassName = (symbol) => {
           if (symbol === SYMBOL_X) {
@@ -71,7 +72,7 @@
         };
 
         const handleCellClick = (index) => {
-          if (cells[index] || winnerSequence) {
+          if (cells[index] || winnerSequence || isDraw) {
             return;
           }
           const cellsCopy = cells.slice();
@@ -79,9 +80,20 @@
           const winner = computedWinner(cellsCopy);
 
           setCells(cellsCopy);
-          console.log(cellsCopy);
           setCurrenstep(currentStep === SYMBOL_O ? SYMBOL_X : SYMBOL_O);
           setWinnerSequence(winner);
+
+          // Проверка на ничью
+          if (!winner && cellsCopy.every((cell) => cell !== null)) {
+            setIsDraw(true);
+          }
+        };
+
+        const resetGame = () => {
+          setCells([null, null, null, null, null, null, null, null, null]);
+          setWinnerSequence(undefined);
+          setCurrenstep(SYMBOL_O);
+          setIsDraw(false); // Сброс ничьей
         };
 
         const winnerSymbol = winnerSequence ? cells[winnerSequence[0]] : undefined;
@@ -89,7 +101,13 @@
         return (
           <div className='game'>
             <div className='game-info'>
-              {winnerSequence ? 'Победитель:' : 'Ход:'} {renderSymbol(winnerSymbol ?? currentStep)}
+              {winnerSequence ? (
+                <>Победитель: {renderSymbol(winnerSymbol)}</>
+              ) : isDraw ? (
+                'Ничья'
+              ) : (
+                <>Ход: {renderSymbol(currentStep)}</>
+              )}
             </div>
             <div className='game-field'>
               {cells.map((symbol, index) => {
@@ -103,6 +121,11 @@
                   </button>
                 );
               })}
+              <div>
+                <button className='reset' onClick={resetGame}>
+                  Сбросить
+                </button>
+              </div>
             </div>
           </div>
         );
