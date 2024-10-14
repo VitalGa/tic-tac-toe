@@ -71,7 +71,7 @@
         };
 
         const handleCellClick = (index) => {
-          if (cells[index]) {
+          if (cells[index] || winnerSequence) {
             return;
           }
           const cellsCopy = cells.slice();
